@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -7,18 +9,18 @@ export class UserService {
   }
 
   findOne(id: string) {
-    return 'Retorna um usuário por id';
+    return 'Retorna um usuário por id' + id;
   }
 
-  create(body: string) {
-    return 'Cria um usuário';
+  create(createUserDto: CreateUserDto) {
+    return createUserDto;
   }
 
-  update(id: string, body: string) {
-    return 'Atualiza um usuário por id';
+  update(id: string, updateUserDto: UpdateUserDto) {
+    return updateUserDto;
   }
 
   remove(id: string) {
-    return 'Remove um usuário por id';
+    return 'Remove um usuário por id' + id;
   }
 }
