@@ -1,4 +1,7 @@
+import { Exclude } from 'class-transformer';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -17,7 +20,13 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
-  @Column()
+  @BeforeInsert()
+  @BeforeUpdate()
+  emailToLowerCase() {
+    this.email = this.email?.toLowerCase().trim();
+  }
+
+  @Column({ select: false })
   password!: string;
 
   @CreateDateColumn()

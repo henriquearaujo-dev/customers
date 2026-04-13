@@ -1,26 +1,98 @@
-import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from './entities/User';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
-  findAll() {
-    return 'Retorna todos os usuários';
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
+  async findAll() {
+    return await this.userRepository.find();
   }
 
-  findOne(id: string) {
-    return 'Retorna um usuário por id' + id;
+  async findOne(id: string) {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+    return user;
   }
 
-  create(createUserDto: CreateUserDto) {
-    return createUserDto;
+  async create(createUserDto: CreateUserDto) {
+    const emailExists = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+    });
+
+    if (emailExists) {
+      throw new ConflictException(`Email em uso.`);
+    }
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+
+    const newUser = this.userRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    return await this.userRepository.save(newUser);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return updateUserDto;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    if (!updateUserDto || Object.keys(updateUserDto).length === 0) {
+      throw new BadRequestException('Nenhum dado fornecido para atualização.');
+    }
+
+    const user = await this.userRepository.findOneBy({ id });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const emailExists = await this.userRepository.findOneBy({
+        email: updateUserDto.email,
+      });
+
+      if (emailExists) {
+        throw new ConflictException('Email está em uso');
+      }
+    }
+
+    const salt = await bcrypt.genSalt();
+
+    const updateUser = {
+      name: updateUserDto.name,
+      email: updateUserDto.email,
+      ...(updateUserDto.password && {
+        passwordHash: await bcrypt.hash(updateUserDto.password, salt),
+      }),
+    };
+
+    await this.userRepository.update(id, updateUser);
+
+    return updateUser;
   }
 
-  remove(id: string) {
-    return 'Remove um usuário por id' + id;
+  async remove(id: string) {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    await this.userRepository.remove(user);
   }
 }

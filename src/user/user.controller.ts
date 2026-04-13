@@ -32,7 +32,10 @@ export class UserController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, updateUserDto: UpdateUserDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
     return this.userService.update(id, updateUserDto);
   }
 
