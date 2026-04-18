@@ -75,10 +75,10 @@ export class UserService {
     const salt = await bcrypt.genSalt();
 
     const updateUser = {
-      nome: updateUserDto.name,
+      name: updateUserDto.name,
       email: updateUserDto.email,
       ...(updateUserDto.password && {
-        passwordHash: await bcrypt.hash(updateUserDto.password, salt),
+        password: await bcrypt.hash(updateUserDto.password, salt),
       }),
     };
 
