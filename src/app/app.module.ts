@@ -4,10 +4,12 @@ import { AppService } from './app.service';
 import { UserModule } from '../user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
     UserModule,
+    AuthModule,
 
     ConfigModule.forRoot({
       isGlobal: true,

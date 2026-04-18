@@ -10,12 +10,14 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/User';
 import { Repository } from 'typeorm';
+import { HashingService } from '../auth/hashing/hashing.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly hashingService: HashingService,
   ) {}
   async findAll() {
     return await this.userRepository.find();
@@ -39,12 +41,11 @@ export class UserService {
       throw new ConflictException(`Email em uso.`);
     }
 
-    const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(createUserDto.password, salt);
+    const passwordHash = await this.hashingService.hash(createUserDto.password);
 
     const newUser = this.userRepository.create({
       ...createUserDto,
-      password: hashedPassword,
+      password: passwordHash,
     });
 
     return await this.userRepository.save(newUser);
