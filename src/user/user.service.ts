@@ -1,4 +1,3 @@
-import * as bcrypt from 'bcrypt';
 import {
   BadRequestException,
   ConflictException,
@@ -41,11 +40,9 @@ export class UserService {
       throw new ConflictException(`Email em uso.`);
     }
 
-    const passwordHash = await this.hashingService.hash(createUserDto.password);
-
     const newUser = this.userRepository.create({
       ...createUserDto,
-      password: passwordHash,
+      password: await this.hashingService.hash(createUserDto.password),
     });
 
     return await this.userRepository.save(newUser);
@@ -72,13 +69,11 @@ export class UserService {
       }
     }
 
-    const salt = await bcrypt.genSalt();
-
     const updateUser = {
       name: updateUserDto.name,
       email: updateUserDto.email,
       ...(updateUserDto.password && {
-        password: await bcrypt.hash(updateUserDto.password, salt),
+        password: await this.hashingService.hash(updateUserDto.password),
       }),
     };
 

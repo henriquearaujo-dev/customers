@@ -21,8 +21,10 @@ import { AuthModule } from '../auth/auth.module';
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: true,
+        autoLoadEntities: configService.get<boolean>(
+          'DATABASE_AUTOLOADENTITIES',
+        ),
+        synchronize: configService.get<boolean>('DATABASE_SYNCRONIZE'),
       }),
     }),
   ],
