@@ -5,9 +5,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Client } from '../../client/entities/client.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +27,9 @@ export class User {
   emailToLowerCase() {
     this.email = this.email?.toLowerCase().trim();
   }
+
+  @OneToMany(() => Client, (client) => client.user)
+  clients!: Client[];
 
   @Column({ select: false })
   password!: string;

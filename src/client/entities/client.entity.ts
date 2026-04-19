@@ -1,5 +1,13 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { User } from '../../user/entities/User';
+import { IsEmail } from 'class-validator';
 
 @Entity('clients')
 export class Client {
@@ -7,6 +15,10 @@ export class Client {
   id!: string;
 
   @Column()
+  name!: string;
+
+  @Column({ unique: true })
+  @IsEmail()
   email!: string;
 
   @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
@@ -14,4 +26,10 @@ export class Client {
 
   @Column()
   userId!: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 }
