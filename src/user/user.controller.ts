@@ -14,11 +14,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthTokenGuard } from '../auth/guards/auth-token.guard';
 
+@UseGuards(AuthTokenGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(AuthTokenGuard)
   @Get()
   findAll() {
     return this.userService.findAll();
