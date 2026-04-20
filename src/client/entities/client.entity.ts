@@ -21,7 +21,7 @@ export class Client {
   @IsEmail()
   email!: string;
 
-  @ManyToOne(() => User, (user) => user.id, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.clients, { onDelete: 'CASCADE' })
   user!: User;
 
   @Column()
